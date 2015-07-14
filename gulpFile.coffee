@@ -1,49 +1,61 @@
-gulp    = 	require 'gulp'
-watch 	= 	require 'gulp-watch'
-sequence = 	require 'gulp-run-sequence'
-inject 	= 	require 'gulp-inject'
-_ 			= 	require 'lodash'
-args		= 	require('yargs')
-					.alias('coffee', 'coffee-script')
-					.alias('styl', 'stylus')
-					.boolean(['coffee', 'stylus', 'less', 'sass'])
-					.default('port', 8001)
-					.argv
-spawn		= 	require('child_process').spawn
-path 		= 	require 'path'
-coffee 	= 	require 'gulp-coffee'
-less 		= 	require 'gulp-less'
-sass 		= 	require 'gulp-sass'
-stylus 	= 	require 'gulp-stylus'
-clean 	= 	require 'gulp-clean'
-nib 		= 	require 'nib'
-del 		= 	require 'del'
-port 		= 	null
-tasks 	= 	null
+gulp      = 	require 'gulp'
+watch     = 	require 'gulp-watch'
+sequence  = 	require 'gulp-run-sequence'
+inject    = 	require 'gulp-inject'
+_         = 	require 'lodash'
+args      = 	require('yargs')
+                .alias('coffee', 'coffee-script')
+                .alias('styl', 'stylus')
+                .boolean(['coffee', 'stylus', 'less', 'sass'])
+                .default('port', 8001)
+                .argv
+spawn     = 	require('child_process').spawn
+exec      =   require('child_process').exec
+fs        =   require 'fs'
+path      =   require 'path'
+coffee    =   require 'gulp-coffee'
+less      =   require 'gulp-less'
+sass      =   require 'gulp-sass'
+stylus    =   require 'gulp-stylus'
+clean     =   require 'gulp-clean'
+concat    =   require 'gulp-concat'
+ngFileSort =  require 'gulp-angular-filesort'
+nib       =   require 'nib'
+del       =   require 'del'
+mainBowerFiles  =   require 'main-bower-files'
+port      =   null
+tasks     =   null
 
-srcBase 		= 	"src/"
-srcBaseJS 	= 	"#{srcBase}js/**/"
+srcBase     = 	"src/"
+srcBaseJS   = 	"#{srcBase}js/**/"
 srcBaseCSS  = 	"#{srcBase}css/**/"
 
-destBase 		= 	"dest/"
-destBaseJS 	= 	"#{destBase}js/**/"
+destBase    = 	"dest/"
+destBaseJS  = 	"#{destBase}js/**/"
 destBaseCSS = 	"#{destBase}css/**/"
 
-paths  	= 	{
-	src :
-		js 		 : "#{srcBaseJS}*.js"
-		coffee : "#{srcBaseJS}*.coffee"
-		css 	 : "#{srcBaseCSS}*.css"
-		stylus : "#{srcBaseCSS}*.styl"
-		less 	 : "#{srcBaseCSS}*.less"
-		sass 	 : "#{srcBaseCSS}*.scss"
-	dest :
-		js : "#{destBaseJS}*.js"
-		css: "#{destBaseCSS}*.css"
-}
+vendorsPathJS  =  "#{destBase}/vendors/js/"
+vendorsPathCSS =  "#{destBase}/vendors/styles/"
 
-availTasks 		= ['coffee', 'stylus', 'less', 'sass', 'js', 'css']
-defaultTasks	= ['demon', 'js', 'css', 'watch']
+paths       =
+  src :
+    js 		 : "#{srcBaseJS}*.js"
+    coffee : "#{srcBaseJS}*.coffee"
+    css 	 : "#{srcBaseCSS}*.css"
+    stylus : "#{srcBaseCSS}*.styl"
+    less 	 : "#{srcBaseCSS}*.less"
+    sass 	 : "#{srcBaseCSS}*.scss"
+  dest :
+    js : "#{destBaseJS}*.js"
+    css: "#{destBaseCSS}*.css"
+  vendors :
+    js  : "#{vendorsPathJS}/**/*.js"
+    css : "#{vendorsPathCSS}/**/*.css"
+
+
+availTasks    = ['coffee', 'stylus', 'less', 'sass', 'js', 'css']
+defaultTasks  = ['demon', 'js', 'css', 'watch']
+injectTarget  = 'index.html'
 
 getTasks = (args)->
 	_tasks = []
@@ -54,6 +66,17 @@ getTasks = (args)->
 				_tasks.push task
 
 	_.uniq _tasks
+
+getIncludes = ->
+  fs.readFileSync('includes.json', {
+    encoding : 'utf8'
+  })
+
+getPath = (path)->
+  _path = path.split('/')
+  _path.splice(1,1)
+
+  return _path.join('/')
 
 gulp.task 'cleanCSS', ->
 	gulp.src paths.dest.css, {read: false}
@@ -66,6 +89,14 @@ gulp.task 'cleanJS', ->
 gulp.task 'js', ['cleanJS'], ->
 	gulp.src paths.src.js
 		.pipe gulp.dest("#{destBase}js/")
+
+gulp.task 'cleanVendor:js', ->
+  gulp.src paths.vendors.js, {read: false}
+    .pipe(clean())
+
+gulp.task 'cleanVendor:css', ->
+  gulp.src paths.vendors.css, {read: false}
+    .pipe(clean())
 
 gulp.task 'coffee', ['cleanJS'],->
 	gulp.src paths.src.coffee
@@ -93,13 +124,37 @@ gulp.task 'sass', ['cleanCSS'], ->
 		.pipe(sass())
 		.pipe(gulp.dest("#{destBase}css/"))
 
-gulp.task 'inject', ->
-	_target  = gulp.src 'index.html'
-	_sources = gulp.src ["#{paths.dest.css}", "#{paths.dest.js}"], {read: false}
+gulp.task 'inject:author', ->
+  _target  = gulp.src injectTarget
+  _sources = gulp.src(["#{paths.dest.js}", "#{paths.dest.css}"], {read: false})
 
-	_target
-		.pipe inject(_sources, { addRootSlash : true})
-		.pipe gulp.dest "./"
+  _target
+    .pipe inject(_sources)
+    .pipe gulp.dest "./"
+
+gulp.task 'inject:vendor', ->
+  _target   = gulp.src injectTarget
+  _includesJS = JSON.parse(getIncludes()).deps.js
+  _includesCSS = JSON.parse(getIncludes()).deps.css
+
+  gulp.src(_includesJS)
+    .pipe(concat('vendors.js'))
+    .pipe(gulp.dest(vendorsPathJS))
+
+  gulp.src(_includesCSS)
+    .pipe(concat('vendors.css'))
+    .pipe(gulp.dest(vendorsPathCSS))
+
+  _sources = gulp.src(["#{paths.vendors.js}", "#{paths.vendors.css}"], {read: false})
+
+  _target
+    .pipe inject(_sources,{
+      name : 'vendor'
+    })
+    .pipe gulp.dest './'
+
+gulp.task 'inject', ->
+  sequence 'inject:vendor', 'inject:author'
 
 gulp.task 'demon', ->
 	port    = port || args.port
@@ -118,4 +173,4 @@ gulp.task 'watch', ->
 
 gulp.task 'default', ->
 	port  = args.port
-	sequence 'js', 'css', 'inject', 'watch', 'demon'
+	sequence 'coffee', 'stylus', 'js', 'css', 'cleanVendor:js', 'cleanVendor:css', 'inject', 'watch'

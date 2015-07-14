@@ -1,5 +1,5 @@
 {
-  "name": "autoStatus",
+  "name": "Boilerplate",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
@@ -23,8 +23,11 @@
     "gulp-sass": "^1.3.2",
     "gulp-stylus": "^2.0.0",
     "gulp-watch": "^4.1.0",
+    "gulp-angular-filesort": "^1.1.1",
+    "gulp-concat": "^2.5.2",
     "lodash": "^3.1.0",
     "nib": "^1.1.0",
-    "yargs": "^1.3.3"
+    "yargs": "^1.3.3",
+    "main-bower-files": "^2.8.0"
   }
 }

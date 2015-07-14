@@ -1,0 +1,16 @@
+{
+  "deps" : {
+
+    "js" : [
+
+      "bower_components/jquery/jquery.js"
+
+    ],
+
+    "css" : [
+      "bower_components/bootstrap/dist/css/bootstrap.min.css",
+      "bower_components/bootstrap/dist/css/bootstrap-theme.min.css"
+    ]
+
+  }
+}

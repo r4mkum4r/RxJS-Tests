@@ -1,5 +1,5 @@
 {
-  "name": "autoStatus",
+  "name": "Boilerplate",
   "version": "0.1.0",
   "authors": [
     "r4mkum4r <r4mkum4r.r@gmail.com>"
@@ -15,6 +15,7 @@
   ],
   "devDependencies": {},
   "dependencies": {
-    "moment": "~2.10.2"
+    "jquery": "1.10",
+    "bootstrap": "~3.3.5"
   }
 }
