@@ -1,0 +1,21 @@
+{
+  "name": "Boilerplate",
+  "version": "0.1.0",
+  "authors": [
+    "r4mkum4r <r4mkum4r.r@gmail.com>"
+  ],
+  "main": "index.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {},
+  "dependencies": {
+    "jquery": "1.10",
+    "bootstrap": "~3.3.5"
+  }
+}
