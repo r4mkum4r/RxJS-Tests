@@ -15,7 +15,7 @@
   ],
   "devDependencies": {},
   "dependencies": {
-    "jquery": "1.10",
-    "bootstrap": "~3.3.5"
+    "rxjs": "~4.1.0",
+    "bootstrap": "~3.3.6"
   }
 }

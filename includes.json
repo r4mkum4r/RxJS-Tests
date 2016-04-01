@@ -3,13 +3,12 @@
 
     "js" : [
 
-      "bower_components/jquery/jquery.js"
+      "bower_components/rxjs/dist/rx.all.js"
 
     ],
 
     "css" : [
-      "bower_components/bootstrap/dist/css/bootstrap.min.css",
-      "bower_components/bootstrap/dist/css/bootstrap-theme.min.css"
+      "bower_components/bootstrap/dist/css/bootstrap.min.css"
     ]
 
   }

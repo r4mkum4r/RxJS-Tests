@@ -22,6 +22,7 @@ concat    =   require 'gulp-concat'
 ngFileSort =  require 'gulp-angular-filesort'
 nib       =   require 'nib'
 del       =   require 'del'
+babel     =   require 'gulp-babel'
 mainBowerFiles  =   require 'main-bower-files'
 port      =   null
 tasks     =   null
@@ -88,6 +89,7 @@ gulp.task 'cleanJS', ->
 
 gulp.task 'js', ['cleanJS'], ->
 	gulp.src paths.src.js
+    .pipe babel()
 		.pipe gulp.dest("#{destBase}js/")
 
 gulp.task 'cleanVendor:js', ->
@@ -101,6 +103,7 @@ gulp.task 'cleanVendor:css', ->
 gulp.task 'coffee', ['cleanJS'],->
 	gulp.src paths.src.coffee
 		.pipe(coffee({bare:true}))
+    .pipe babel()
 		.pipe(gulp.dest("#{destBase}js/"))
 
 gulp.task 'css', ['cleanCSS'], ->
